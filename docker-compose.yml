@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  #laravel
+  app:
+    build:
+      args:
+        user: laravel
+        uid: 1337
+      context: ./
+      dockerfile: .docker/php-fpm/Dockerfile
+    image: ${APP_NAME}-app
+    container_name: ${APP_NAME}-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html:cached
+      - .docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini:cached
+    networks:
+      - laravel-network
+    environment:
+      TZ: Asia/Bangkok
+  nginx:
+    image: nginx:alpine
+    container_name: ${APP_NAME}-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/html
+      - ./.docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - laravel-network
+  #mysql
+  database:
+    image: mysql:5.7
+    container_name: ${APP_NAME}-db
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+      TZ: Asia/Bangkok
+    volumes:
+      - laravel:/var/lib/mysql/
+    ports:
+      - 3306:3306
+    networks:
+      - laravel-network
+
+networks:
+  laravel-network:
+    driver: bridge
+volumes:
+  laravel:
