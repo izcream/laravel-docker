@@ -1,14 +1,19 @@
-#Example docker compose implements to laravel old version
+# Laravel + Docker  Compose
+Example docker implements to old laravel version
 
-## include
- - Laravel
- - Nginx
- - Mysql
+## Installation
+1. Clone this repo
+2. `cp .env.example .env`
+3. config your env file **(Important: required set `DB_HOST` to database)**
+3. `docker compose up -d`
+4. `docker exec -it ${APP_NAME}-app bash`
+5. `composer install`
+6. `php artisan key:generate`
+7. Do anything you need to laravel ex: migrate, db:seed, passport:install
+8. Visit [http://localhost](http://localhost) to view website
 
-- cp .env.example -> .env
-- docker compose up -d
-- docker exec -it ${APP_NAME}-app bash
-- composer install
-- php artisan key:generate
-- php artisan passport:install / php artisan migrate
-- visit http://localhost to see you site
+## Stack
+- Laravel
+- Docker Compose
+- Mysql
+- Nginx
