@@ -1,30 +1,44 @@
-FROM php:7.2-fpm
+FROM php:7.2-fpm-alpine3.12
+LABEL maintainer="izcream*"
 
-ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
+RUN rm -f /etc/apk/repositories &&\
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.12/main" >> /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.12/community" >> /etc/apk/repositories
+RUN apk update && apk add --no-cache --virtual .build-deps  \
+    zlib-dev \
+    libjpeg-turbo-dev \
     libpng-dev \
-    libonig-dev \
     libxml2-dev \
-    zlib1g-dev \
-    libzip-dev \
+    bzip2-dev
+RUN apk add --update --no-cache \
+    jpegoptim \
+    pngquant \
+    optipng \
+    supervisor \
+    nano \
+    icu-dev \
+    freetype-dev \
+    mysql-client \
+    libzip-dev
+RUN docker-php-ext-configure \
+    opcache --enable-opcache &&\
+    docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ &&\
+    docker-php-ext-install \
+    opcache \
+    mysqli \
+    pdo \
+    pdo_mysql \
+    sockets \
+    json \
+    intl \
+    gd \
+    xml \
     zip \
-    unzip
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN docker-php-ext-install gd pdo_mysql mbstring exif pcntl bcmath zip intl
+    bz2 \
+    pcntl \
+    bcmath
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
-
-RUN mkdir -p /home/$user/.composer && \
-    chown -R www:www /home/$user
-
 WORKDIR /var/www/html
 
-USER www
