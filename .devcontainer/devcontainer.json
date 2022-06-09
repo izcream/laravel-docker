@@ -29,6 +29,7 @@
 		"onecentlin.laravel-blade"
 	],
 	"postCreateCommand": "composer install && php artisan key:generate"
+  // "remoteUser": "www"
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 

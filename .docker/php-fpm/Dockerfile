@@ -20,6 +20,7 @@ RUN apk add --update --no-cache \
     freetype-dev \
     mysql-client \
     libzip-dev
+
 RUN docker-php-ext-configure \
     opcache --enable-opcache &&\
     docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ &&\
@@ -40,5 +41,8 @@ RUN docker-php-ext-configure \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN addgroup -S www && adduser -S www -G www -u 1000 -D && mkdir -p /home/www/.composer && chown -R www:www /home/www
+
 WORKDIR /var/www/html
 
+USER www
